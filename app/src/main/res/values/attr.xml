@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<declare-styleable name="CountDownView">
+    <attr name="textColorNormal" format="string"/>
+    <attr name="showTips" format="boolean" />
+    <attr name="tips" format="string" />
+    <attr name="textSize" format="integer"/>
+</declare-styleable>
+</resources>
