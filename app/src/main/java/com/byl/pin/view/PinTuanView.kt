@@ -1,6 +1,7 @@
 package com.byl.pin.view
 
 import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
@@ -49,11 +50,13 @@ class PinTuanView : FrameLayout {
     }
 
     fun setData() {
+        stop()
+        v.rootView.removeAllViews()
         listData = ArrayList()
-        for (i in 0..9) {
+        for (i in 0..3) {
             val itemBean = ItemBean()
             itemBean.id = i
-            itemBean.name = "哈哈哈" + (i + 1)
+            itemBean.name = "哈哈哈$i"
             itemBean.endTime = System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000
             listData!!.add(itemBean)
         }
@@ -83,12 +86,13 @@ class PinTuanView : FrameLayout {
             //TODO 倒计时结束
         }
         itemView.btnAddTeam.setOnClickListener {
-            clickTeam(itemBean)
+            clickTeam(itemBean)//此处只有初始化了clickTeam才能调用
         }
         return itemView.root
     }
 
     fun start() {
+        if (listData!!.size <= SHOW_COUNT) return
         if (scrollTask != null) {
             removeCallbacks(scrollTask)
             scrollTask = null
@@ -98,6 +102,7 @@ class PinTuanView : FrameLayout {
     }
 
     fun stop() {
+        if (scrollTask == null) return
         removeCallbacks(scrollTask)
         scrollTask = null
         v.rootView.children.forEach {
@@ -120,9 +125,9 @@ class PinTuanView : FrameLayout {
                 v.rootView.getChildAt(0).layoutParams = layoutParams
                 v.rootView.getChildAt(0).alpha = (0.6f - value / height.toFloat())
             }
-            animator.addListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animation: Animator) {}
-                override fun onAnimationEnd(animation: Animator) {
+            animator.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    super.onAnimationEnd(animation)
                     v.rootView.getChildAt(0).findViewById<CountTimerView>(
                         R.id.mCountDownView
                     ).stop()
@@ -133,10 +138,14 @@ class PinTuanView : FrameLayout {
                     v.rootView.addView(getItemView(listData!![preShowIndex]))
                     preShowIndex++
                     postDelayed(scrollTask, TIME_INTERVAL)
+                    //当转完一圈后，刷新数据（这个地方为模拟刷新，可以在实际应用中重新请求接口，达到无感刷新）
+                    if (preShowIndex == SHOW_COUNT + 1) {
+                        handler.postDelayed({
+                            setData()
+                            start()
+                        }, 1000)
+                    }
                 }
-
-                override fun onAnimationCancel(animation: Animator) {}
-                override fun onAnimationRepeat(animation: Animator) {}
             })
         }
 
