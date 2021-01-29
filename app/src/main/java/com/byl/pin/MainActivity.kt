@@ -13,6 +13,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         mPinTuanView = findViewById(R.id.mPinTuanView)
+        mPinTuanView.addClickTeamListener {
+
+        }
         mPinTuanView.setData()
         mPinTuanView.start()
 
